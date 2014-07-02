@@ -130,10 +130,6 @@ public class ALEipAuthentication extends TurbineBaseService implements
         logger.warn("User denied authentication: " + username, e);
         throw new LoginException(e.toString());
       }
-      if (user == null) {
-        logger.error("Invalid password for user: " + username);
-        throw new FailedLoginException("Credential authentication failure");
-      }
     } else {
       try {
         user = JetspeedUserManagement.getUser(new UserNamePrincipal(username));
