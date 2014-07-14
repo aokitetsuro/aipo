@@ -71,6 +71,11 @@ public class ProjectTaskFormScreen extends ProjectScreen {
     ProjectTaskFormData formData = new ProjectTaskFormData();
     formData.initField();
     formData.doViewForm(this, rundata, context);
+    if (formData.getMode().equals("new_form")) {
+      context.put("new_form", true);
+    } else {
+      context.put("new_form", false);
+    }
 
     String layout_template = "portlets/html/ja/ajax-project-task-form.vm";
     setTemplate(rundata, context, layout_template);

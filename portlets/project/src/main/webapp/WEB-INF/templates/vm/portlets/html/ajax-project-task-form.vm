@@ -77,6 +77,7 @@
     #ALtdcaption("$!result.getFieldName('explanation')")
     #ALtditem("<textarea class='text w100' rows='10' cols='40' name='explanation'>$!result.Explanation</textarea>")
     ##ステータス
+	#if(!$new_form)
     #ALtdcaption("$!result.getFieldName('status')")
     #ALtditemheader()
     <select name="status" id="status">
@@ -85,6 +86,9 @@
     #end
     </select>
     #ALtditemfooter()
+	#else
+		<input name="status" value="1" type="hidden" />
+	#end
     ##優先度
     #ALtdcaption("$!result.getFieldName('priority')")
     #ALtditemheader()
@@ -169,6 +173,7 @@
     #end
     #ALtditemfooter()
     ##進捗率
+	#if(!$new_form)
     #ALtdcaption("$!result.getFieldName('progress_rate')")
     #ALtditemheader()
     #if(!$!result.HasChildren)
@@ -189,6 +194,9 @@
     	$!result.ProgressRate.toString()
     #end
     #ALtditemfooter()
+	#else
+		<input name="progress_rate" value="0" type="hidden" />
+	#end
     ##ファイル
     <tr #if(!$result.isFileUploadable())class="mb_hide"#end>
     <td class="caption">$l10n.PROJECT_FILE_ATTACH</td>
