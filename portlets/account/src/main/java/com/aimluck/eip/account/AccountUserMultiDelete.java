@@ -104,7 +104,8 @@ public class AccountUserMultiDelete extends ALAbstractCheckList {
             .getl10nFormat("ACCOUNT_ALERT_DELETE_LOGINUSER"));
           return false;
         }
-        if (ALEipUtils.isAdmin(user.getUserId())) {
+        if (ALEipUtils.isAdmin(user.getUserId())
+          && ALEipUtils.isEnabledUser(user.getUserId())) {
           admin_count++;
         }
       }
