@@ -370,10 +370,22 @@ public class ProjectFormData extends ALAbstractFormData {
       // メンバーの登録
       // -----------------------
 
+      List<ALEipUser> mailUserList = new ArrayList<ALEipUser>();
+
       for (ALEipUser user : memberList) {
         EipTProjectMember member = Database.create(EipTProjectMember.class);
         member.setEipTProject(project);
         member.setUserId((int) user.getUserId().getValue());
+
+        mailUserList.add(user);
+      }
+
+      if (mailUserList.size() > 0) {
+        ProjectUtils.sendMailForProjectMembers(
+          rundata,
+          context,
+          project,
+          mailUserList);
       }
 
       // メンバーを登録
@@ -453,13 +465,34 @@ public class ProjectFormData extends ALAbstractFormData {
       // メンバーの登録
       // -----------------------
 
+      List<ALEipUser> oldMenber =
+        ProjectUtils.getProjectMembers(project.getProjectId());
+      List<Integer> oldMemberIdList = new ArrayList<Integer>();
+      for (ALEipUser rd : oldMenber) {
+        oldMemberIdList.add(rd.getUserId().getValueWithInt());
+      }
+
       // メンバーを削除
       ProjectUtils.removeProjectMember(project);
+
+      List<ALEipUser> mailUserList = new ArrayList<ALEipUser>();
 
       for (ALEipUser user : memberList) {
         EipTProjectMember member = Database.create(EipTProjectMember.class);
         member.setEipTProject(project);
         member.setUserId((int) user.getUserId().getValue());
+
+        if (!oldMemberIdList.contains(member.getUserId())) {
+          mailUserList.add(user);
+        }
+      }
+
+      if (mailUserList.size() > 0) {
+        ProjectUtils.sendMailForProjectMembers(
+          rundata,
+          context,
+          project,
+          mailUserList);
       }
 
       // サーバーに残すファイルのID

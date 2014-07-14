@@ -633,6 +633,9 @@ public class ProjectTaskFormData extends ALAbstractFormData {
       }
       task.setOrderNo(orderNo);
 
+      List<ProjectTaskMemberResultData> mailUserList =
+        new ArrayList<ProjectTaskMemberResultData>();
+
       // 担当者情報
       for (int i = 0; i < taskMembers.size(); i++) {
         ProjectTaskMemberResultData member = taskMembers.get(i);
@@ -640,6 +643,18 @@ public class ProjectTaskFormData extends ALAbstractFormData {
         data.setEipTProjectTask(task);
         data.setUserId((int) member.getUserId().getValue());
         data.setWorkload(member.getWorkload());
+        if (!tuser.getUserId().equals(member.getUserId().getValueWithInt())) {
+          mailUserList.add(member);
+        }
+      }
+
+      if (mailUserList.size() > 0) {
+        ProjectUtils.sendMailForTaskMembers(
+          rundata,
+          context,
+          task,
+          project,
+          mailUserList);
       }
 
       // 添付ファイルを登録する。
@@ -777,7 +792,21 @@ public class ProjectTaskFormData extends ALAbstractFormData {
         // 担当者情報を削除
         ProjectUtils.removeProjectTaskMember(task);
 
+        List<ProjectTaskMemberResultData> mailUserList =
+          new ArrayList<ProjectTaskMemberResultData>();
+
         // 担当者情報
+        List<ProjectTaskMemberResultData> oldMenber =
+          ProjectUtils.getProjectTaskMembers(task.getTaskId().toString());
+        List<Integer> oldMemberIdList = new ArrayList<Integer>();
+        for (ProjectTaskMemberResultData rd : oldMenber) {
+          oldMemberIdList.add(rd.getUserId().getValueWithInt());
+        }
+        TurbineUser tuser =
+          Database.get(TurbineUser.class, loginUser
+            .getUserId()
+            .getValueWithInt());
+
         for (int i = 0; i < taskMembers.size(); i++) {
           ProjectTaskMemberResultData member = taskMembers.get(i);
           EipTProjectTaskMember data =
@@ -785,6 +814,19 @@ public class ProjectTaskFormData extends ALAbstractFormData {
           data.setEipTProjectTask(task);
           data.setUserId((int) member.getUserId().getValue());
           data.setWorkload(member.getWorkload());
+          if (!oldMemberIdList.contains(member.getUserId().getValueWithInt())
+            && !tuser.getUserId().equals(member.getUserId().getValueWithInt())) {
+            mailUserList.add(member);
+          }
+        }
+
+        if (mailUserList.size() > 0) {
+          ProjectUtils.sendMailForTaskMembers(
+            rundata,
+            context,
+            task,
+            project,
+            mailUserList);
         }
       }
 

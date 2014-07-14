@@ -22,6 +22,9 @@
 
 package com.aimluck.eip.project.util;
 
+import static com.aimluck.eip.util.ALLocalizationUtils.*;
+
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -40,9 +43,16 @@ import org.apache.cayenne.DataRow;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.exp.ExpressionFactory;
 import org.apache.commons.lang.StringUtils;
+import org.apache.fulcrum.localization.LocalizationService;
+import org.apache.jetspeed.services.customlocalization.CustomLocalizationService;
 import org.apache.jetspeed.services.logging.JetspeedLogFactoryService;
 import org.apache.jetspeed.services.logging.JetspeedLogger;
+import org.apache.jetspeed.services.resources.JetspeedResources;
+import org.apache.jetspeed.util.ServiceUtil;
 import org.apache.turbine.util.RunData;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 
 import com.aimluck.eip.cayenne.om.portlet.EipMProjectKubun;
@@ -59,6 +69,11 @@ import com.aimluck.eip.common.ALDBErrorException;
 import com.aimluck.eip.common.ALEipConstants;
 import com.aimluck.eip.common.ALEipUser;
 import com.aimluck.eip.common.ALPageNotFoundException;
+import com.aimluck.eip.mail.ALAdminMailContext;
+import com.aimluck.eip.mail.ALAdminMailMessage;
+import com.aimluck.eip.mail.ALMailService;
+import com.aimluck.eip.mail.util.ALEipUserAddr;
+import com.aimluck.eip.mail.util.ALMailUtils;
 import com.aimluck.eip.orm.Database;
 import com.aimluck.eip.orm.query.Operations;
 import com.aimluck.eip.orm.query.SQLTemplate;
@@ -67,8 +82,10 @@ import com.aimluck.eip.project.ProjectResultData;
 import com.aimluck.eip.project.ProjectTaskCommentResultData;
 import com.aimluck.eip.project.ProjectTaskMemberResultData;
 import com.aimluck.eip.project.ProjectTaskResultData;
+import com.aimluck.eip.services.orgutils.ALOrgUtilsService;
 import com.aimluck.eip.services.storage.ALStorageService;
 import com.aimluck.eip.util.ALEipUtils;
+import com.aimluck.eip.util.ALLocalizationUtils;
 
 /**
  * プロジェクト管理のユーティリティクラスです。
@@ -522,6 +539,109 @@ public class ProjectUtils {
     }
 
     return true;
+  }
+
+  /**
+   * プロジェクト作成時に参加メンバーへ通知メールを送る
+   * 
+   * @param taskId
+   *          タスクID
+   * @return 成否
+   */
+  public static boolean sendMailForProjectMembers(RunData rundata,
+      Context context, EipTProject project, List<ALEipUser> memberList) {
+
+    String orgId = Database.getDomainName();
+    String subject =
+      "["
+        + ALOrgUtilsService.getAlias()
+        + "]"
+        + ALLocalizationUtils.getl10n("PROJECT_MAIL_TITLE");
+
+    try {
+      List<ALEipUserAddr> destMemberList =
+        ALMailUtils.getALEipUserAddrs(
+          memberList,
+          ALEipUtils.getUserId(rundata),
+          false);
+
+      List<ALAdminMailMessage> messageList =
+        new ArrayList<ALAdminMailMessage>();
+      for (ALEipUserAddr destMember : destMemberList) {
+        ALAdminMailMessage message = new ALAdminMailMessage(destMember);
+        message.setPcSubject(subject);
+        message.setCellularSubject(subject);
+        message.setPcBody(createProjectMemberMsg(rundata, message
+          .getPcMailAddr(), project));
+        message.setCellularBody(createProjectMemberMsg(rundata, message
+          .getCellMailAddr(), project));
+        messageList.add(message);
+      }
+
+      ALMailService.sendAdminMailAsync(new ALAdminMailContext(orgId, ALEipUtils
+        .getUserId(rundata), messageList, ALMailUtils
+        .getSendDestType(ALMailUtils.KEY_MSGTYPE_WORKFLOW)));
+
+    } catch (Exception ex) {
+      logger.error("project", ex);
+      return false;
+    }
+    return true;
+
+  }
+
+  /**
+   * 送信するメールの内容を作成する．
+   * 
+   * @return
+   */
+  public static String createProjectMemberMsg(RunData rundata, String addr,
+      EipTProject project) {
+    VelocityContext context = new VelocityContext();
+    boolean enableAsp = JetspeedResources.getBoolean("aipo.asp", false);
+    String CR = ALMailUtils.CR;
+
+    context.put("user_email", addr);
+
+    // （さんの申請は承認されました。など）
+    StringBuffer message = new StringBuffer("");
+    message.append(CR);
+    message.append(
+      getl10nFormat("PROJECT_MAIL_TEXT2", project.getProjectName())).append(CR);
+    context.put("message", message);
+
+    // サービス
+    context.put("serviceAlias", ALOrgUtilsService.getAlias());
+    // サービス（Aipo）へのアクセス
+    context.put("enableAsp", enableAsp);
+    context.put("globalurl", ALMailUtils.getGlobalurl());
+    context.put("localurl", ALMailUtils.getLocalurl());
+    CustomLocalizationService locService =
+      (CustomLocalizationService) ServiceUtil
+        .getServiceByName(LocalizationService.SERVICE_NAME);
+    String lang = locService.getLocale(rundata).getLanguage();
+    StringWriter writer = new StringWriter();
+    try {
+      if (lang != null && lang.equals("ja")) {
+        Template template =
+          Velocity.getTemplate("portlets/mail/"
+            + lang
+            + "/project-notification-mail.vm", "utf-8");
+        template.merge(context, writer);
+      } else {
+        Template template =
+          Velocity.getTemplate(
+            "portlets/mail/project-notification-mail.vm",
+            "utf-8");
+        template.merge(context, writer);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    writer.flush();
+    String ret = writer.getBuffer().toString();
+    return ret;
+
   }
 
   // ---------------------------------------------------
@@ -1184,6 +1304,120 @@ public class ProjectUtils {
     }
 
     return true;
+  }
+
+  /**
+   * タスク担当者へ通知メールを送る
+   * 
+   * @param taskId
+   *          タスクID
+   * @return 成否
+   */
+  public static boolean sendMailForTaskMembers(RunData rundata,
+      Context context, EipTProjectTask task, EipTProject project,
+      List<ProjectTaskMemberResultData> mailUserList) {
+
+    String orgId = Database.getDomainName();
+    String subject =
+      "["
+        + ALOrgUtilsService.getAlias()
+        + "]"
+        + ALLocalizationUtils.getl10n("PROJECT_MAIL_TITLE");
+
+    try {
+      List<ALEipUser> memberList = new ArrayList<ALEipUser>();
+      for (ProjectTaskMemberResultData rd : mailUserList) {
+        memberList.add(ALEipUtils
+          .getALEipUser(rd.getUserId().getValueWithInt()));
+      }
+
+      List<ALEipUserAddr> destMemberList =
+        ALMailUtils.getALEipUserAddrs(
+          memberList,
+          ALEipUtils.getUserId(rundata),
+          false);
+
+      List<ALAdminMailMessage> messageList =
+        new ArrayList<ALAdminMailMessage>();
+      for (ALEipUserAddr destMember : destMemberList) {
+        ALAdminMailMessage message = new ALAdminMailMessage(destMember);
+        message.setPcSubject(subject);
+        message.setCellularSubject(subject);
+        message.setPcBody(createTaskMemberMsg(
+          rundata,
+          message.getPcMailAddr(),
+          task,
+          project));
+        message.setCellularBody(createTaskMemberMsg(rundata, message
+          .getCellMailAddr(), task, project));
+        messageList.add(message);
+      }
+
+      ALMailService.sendAdminMailAsync(new ALAdminMailContext(orgId, ALEipUtils
+        .getUserId(rundata), messageList, ALMailUtils
+        .getSendDestType(ALMailUtils.KEY_MSGTYPE_WORKFLOW)));
+
+    } catch (Exception ex) {
+      logger.error("project", ex);
+      return false;
+    }
+    return true;
+
+  }
+
+  /**
+   * 送信するメールの内容を作成する．
+   * 
+   * @return
+   */
+  public static String createTaskMemberMsg(RunData rundata, String addr,
+      EipTProjectTask task, EipTProject project) {
+    VelocityContext context = new VelocityContext();
+    boolean enableAsp = JetspeedResources.getBoolean("aipo.asp", false);
+    String CR = ALMailUtils.CR;
+
+    context.put("user_email", addr);
+
+    // （さんの申請は承認されました。など）
+    StringBuffer message = new StringBuffer("");
+    message.append(CR);
+    message.append(
+      getl10nFormat("PROJECT_MAIL_TEXT", project.getProjectName(), task
+        .getTaskName())).append(CR);
+    context.put("message", message);
+
+    // サービス
+    context.put("serviceAlias", ALOrgUtilsService.getAlias());
+    // サービス（Aipo）へのアクセス
+    context.put("enableAsp", enableAsp);
+    context.put("globalurl", ALMailUtils.getGlobalurl());
+    context.put("localurl", ALMailUtils.getLocalurl());
+    CustomLocalizationService locService =
+      (CustomLocalizationService) ServiceUtil
+        .getServiceByName(LocalizationService.SERVICE_NAME);
+    String lang = locService.getLocale(rundata).getLanguage();
+    StringWriter writer = new StringWriter();
+    try {
+      if (lang != null && lang.equals("ja")) {
+        Template template =
+          Velocity.getTemplate("portlets/mail/"
+            + lang
+            + "/project-notification-mail.vm", "utf-8");
+        template.merge(context, writer);
+      } else {
+        Template template =
+          Velocity.getTemplate(
+            "portlets/mail/project-notification-mail.vm",
+            "utf-8");
+        template.merge(context, writer);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    writer.flush();
+    String ret = writer.getBuffer().toString();
+    return ret;
+
   }
 
   // ---------------------------------------------------

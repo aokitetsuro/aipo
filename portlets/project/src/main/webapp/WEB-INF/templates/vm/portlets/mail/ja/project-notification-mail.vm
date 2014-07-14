@@ -1,0 +1,14 @@
+${message}
+
+[${serviceAlias}へのアクセス]
+#if($enableAsp)
+ ${globalurl}
+#else
+・社外
+  ${globalurl}
+・社内
+  ${localurl}
+#end
+
+---------------------
+${serviceAlias}
