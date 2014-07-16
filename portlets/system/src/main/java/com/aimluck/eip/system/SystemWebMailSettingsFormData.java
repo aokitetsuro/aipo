@@ -110,7 +110,7 @@ public class SystemWebMailSettingsFormData extends ALAbstractFormData {
   /** メール送信時のメッセージ種別(報告書) */
   private int msg_type_report = FLG_NOTIFY_NONCHECKED;
 
-  /** メール送信時のメッセージ種別(報告書) */
+  /** メール送信時のメッセージ種別(プロジェクト管理) */
   private int msg_type_project = FLG_NOTIFY_NONCHECKED;
 
   @Override
@@ -426,7 +426,7 @@ public class SystemWebMailSettingsFormData extends ALAbstractFormData {
   }
 
   /**
-   * メール送信時のメッセージ種別(報告書)
+   * メール送信時のメッセージ種別(プロジェクト管理)
    * 
    * @return
    */
@@ -435,7 +435,7 @@ public class SystemWebMailSettingsFormData extends ALAbstractFormData {
   }
 
   /**
-   * メール送信時のメッセージ種別(報告書)
+   * メール送信時のメッセージ種別(プロジェクト管理)
    * 
    * @return
    */
