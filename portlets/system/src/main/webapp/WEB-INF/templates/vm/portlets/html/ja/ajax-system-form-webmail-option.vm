@@ -69,6 +69,15 @@ $l10n.SYSTEM_SETTING_MAILINFO_MSG
 <label for="cell_flg_report_id">$l10n.SYSTEM_INFORM_CELLPHONE</label>
 #ALtditemfooter()
 
+
+#ALtdcaption($l10n.SYSTEM_PROJECT_MAIL)
+#ALtditemheader()
+<input name="pc_flg_project" type="checkbox" value="1" id="pc_flg_project_id" #if ($result.PcFlgProject.toString() == "1") checked="checked" #end/>
+<label for="pc_flg_project_id">$l10n.SYSTEM_INFORM_PC</label>
+<input name="cell_flg_project" type="checkbox" value="1" id="cell_flg_project_id" #if ($result.CellFlgProject.toString() == "1") checked="checked" #end/>
+<label for="cell_flg_project_id">$l10n.SYSTEM_INFORM_CELLPHONE</label>
+#ALtditemfooter()
+
 #*
 #ALtdcaption($l10n.SYSTEM_INFORM_TIME)
 #ALtditemheader()

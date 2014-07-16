@@ -580,7 +580,7 @@ public class ProjectUtils {
 
       ALMailService.sendAdminMailAsync(new ALAdminMailContext(orgId, ALEipUtils
         .getUserId(rundata), messageList, ALMailUtils
-        .getSendDestType(ALMailUtils.KEY_MSGTYPE_WORKFLOW)));
+        .getSendDestType(ALMailUtils.KEY_MSGTYPE_PROJECT)));
 
     } catch (Exception ex) {
       logger.error("project", ex);

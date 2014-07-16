@@ -411,3 +411,9 @@ END|
 
 delimiter ;
 
+
+
+-- 20140716
+INSERT INTO `eip_m_mail_notify_conf` VALUES (9,1,28,3,NULL,now(),now());
+-- 20140716
+

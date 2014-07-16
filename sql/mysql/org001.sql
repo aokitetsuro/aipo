@@ -218,7 +218,7 @@ CREATE TABLE `eip_m_mail_notify_conf` (
   PRIMARY KEY (`notify_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `eip_m_mail_notify_conf` VALUES (1,1,1,3,'07:00:00',now(),now()),(2,1,21,3,NULL,'2011-03-02','2011-03-02 18:31:47'),(3,1,22,3,NULL,now(),now()),(4,1,23,3,NULL,now(),now()),(5,1,24,3,NULL,now(),now()),(6,1,25,3,NULL,now(),now()),(7,1,26,3,NULL,now(),now()),(8,1,27,3,NULL,now(),now());
+INSERT INTO `eip_m_mail_notify_conf` VALUES (1,1,1,3,'07:00:00',now(),now()),(2,1,21,3,NULL,'2011-03-02','2011-03-02 18:31:47'),(3,1,22,3,NULL,now(),now()),(4,1,23,3,NULL,now(),now()),(5,1,24,3,NULL,now(),now()),(6,1,25,3,NULL,now(),now()),(7,1,26,3,NULL,now(),now()),(8,1,27,3,NULL,now(),now()),(9,1,28,3,NULL,now(),now());
 
 CREATE TABLE `eip_m_position` (
   `position_id` int(11) NOT NULL AUTO_INCREMENT,
