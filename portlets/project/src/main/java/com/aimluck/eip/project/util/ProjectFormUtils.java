@@ -69,6 +69,7 @@ public class ProjectFormUtils {
     project.setUpdateUserId(loginUserId);
     project.setUpdateDate(Calendar.getInstance().getTime());
 
+    Database.commit();
   }
 
   /**

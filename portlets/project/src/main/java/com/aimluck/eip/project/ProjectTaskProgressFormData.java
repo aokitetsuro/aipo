@@ -210,13 +210,11 @@ public class ProjectTaskProgressFormData extends ALAbstractFormData {
         task.setProgressRate(Integer.valueOf(value));
 
         task.setUpdateDate(new Date());
+        Database.commit();
 
         // プロジェクト情報を更新
         ProjectFormUtils.updateProject(task.getProjectId(), ALEipUtils
           .getUserId(rundata));
-
-        // タスクとプロジェクト情報の更新をコミット
-        Database.commit();
       }
     } catch (Exception e) {
       Database.rollback();

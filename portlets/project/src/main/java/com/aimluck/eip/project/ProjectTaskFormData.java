@@ -666,13 +666,13 @@ public class ProjectTaskFormData extends ALAbstractFormData {
         task,
         msgList);
 
+      // タスクを登録
+      Database.commit();
+
       // プロジェクト情報を更新
       ProjectFormUtils.updateProject(project.getProjectId(), loginUser
         .getUserId()
         .getValueWithInt());
-
-      // タスクとプロジェクト情報の更新をコミット
-      Database.commit();
 
       // イベントログに保存
       ALEventlogFactoryService.getInstance().getEventlogHandler().log(
@@ -858,13 +858,13 @@ public class ProjectTaskFormData extends ALAbstractFormData {
         task,
         msgList);
 
+      // タスクを更新
+      Database.commit();
+
       // プロジェクト情報を更新
       ProjectFormUtils.updateProject(project.getProjectId(), loginUser
         .getUserId()
         .getValueWithInt());
-
-      // タスクとプロジェクト情報の更新をコミット
-      Database.commit();
 
       // イベントログに保存
       ALEventlogFactoryService.getInstance().getEventlogHandler().log(
