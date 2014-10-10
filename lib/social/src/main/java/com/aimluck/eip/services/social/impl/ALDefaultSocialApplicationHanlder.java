@@ -889,12 +889,6 @@ public class ALDefaultSocialApplicationHanlder extends
           + "."
           + Activity.UPDATE_DATE_PROPERTY, cal.getTime())).deleteAll();
 
-      String sql =
-        "delete from activity where update_date < '"
-          + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cal.getTime())
-          + "'";
-      Database.sql(Activity.class, sql).execute();
-
       Database.commit();
 
       // タイムラインに更新情報を追加
