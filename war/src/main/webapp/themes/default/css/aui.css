@@ -1820,16 +1820,24 @@ button[disabled]:active {
 /* imgPopup */
 .imgPopup {
   position: absolute !important;
-  /*overflow:hidden;*/
 }
-
 .imgPopup .imgBody {
   text-align: center;
 }
-
 .imgPopup img {
   max-width: 800px;
   max-height: 800px;
+}
+.imgPopup .meta {
+  position: absolute;
+  right: 0px;
+  top: -30px;
+}
+.imgPopup .meta a {
+  display: inline-block;
+}
+.imgPopup .meta [class*="icon-"] {
+  font-size: 24px;
 }
 
 /* imgPopupTutorial */
