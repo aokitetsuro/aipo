@@ -43,7 +43,7 @@
 #AUISummaryDivfooter()
 #ALajaxlistformheader("$l10n.ACCESSCTL_ROLE")
 #if($result.List.size() == 0)
-<div class="message">$l10n.ACCESSCTL_ALERT_NO_YOUR_SELECT</div>
+<div class="message">#AUIEmptyMessage("icon-check-sign" "$l10n.ACCESSCTL_ALERT_NO_YOUR_SELECT")</div>
 #else
 #AUISummaryDiv()
 <div class="floatLeft">
