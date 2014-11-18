@@ -67,7 +67,7 @@
 <div id="listMessageDiv"></div>
 #ALajaxlistformheader($l10n.GADGETS_APP)
 #if($result.List.size() == 0)
-$l10n.GADGETS_APP_NOT_EXIST_MSG<br />
+#AUIEmptyMessage("icon-th" "$l10n.GADGETS_APP_NOT_EXIST_MSG")
 #else
 #AUISummaryDiv()
 <div class="floatLeft">
