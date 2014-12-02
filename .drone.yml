@@ -1,0 +1,4 @@
+image: bradrydzewski/java:openjdk6
+script:
+  - cd /var/cache/drone/src/github.com/aokitetsuro/aipo
+  - mvn install
