@@ -1,8 +1,5 @@
 image: bradrydzewski/java:openjdk6
 script:
-  - psql -U postgres -c "CREATE ROLE drone WITH LOGIN PASSWORD 'pass';"
-  - createdb -U postgres -E UTF-8 org001 -O drone
-  - psql -U drone -d org001 -f /var/cache/drone/src/github.com/aokitetsuro/aipo/sql/postgres/org001.sql
   - cd /var/cache/drone/src/github.com/aokitetsuro/aipo
   - mvn install
 service:
