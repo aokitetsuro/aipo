@@ -1,6 +1,6 @@
 image: bradrydzewski/java:openjdk6
 env:
-  - MAVEN_OPTS="-XX:MaxPermSize=256m"
+  - MAVEN_OPTS=-XX:MaxPermSize=256m
 script:
   - cd /var/cache/drone/src/github.com/aokitetsuro/aipo
   - mvn install
